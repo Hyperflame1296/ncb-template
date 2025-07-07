@@ -1,0 +1,46 @@
+{
+    "format_version": 2,
+    "header": {
+        "name": "bp - ncb template",
+        "description": "template for making mods using ncb",
+        "uuid": "be9cf288-7371-4c3b-80ba-a81b31b1e693",
+        "version": [ 0, 1, 0 ],
+        "min_engine_version": [ 1, 21, 90 ]
+    },
+    "modules": [
+        {
+            "description": "bp0.1.0",
+            "type": "data",
+            "uuid": "dc7bf11f-45fc-4a5b-aeeb-7c2e46e83bee",
+            "version": [ 0, 1, 0 ]
+        },
+        {
+            "description": "bp0.1.0",
+            "type": "script",
+            "uuid": "1b79e9a6-e0f6-4c2f-ad98-f0c8240e17a6",
+            "version": [ 0, 1, 0 ],
+            "entry": "scripts/ncb/main.js"
+        }
+    ],
+    "capabilities": [
+        "script_eval"
+    ],
+    "dependencies": [
+        {
+            "module_name": "@minecraft/server",
+            "version": "2.1.0-beta"
+        },
+        {
+            "module_name": "@minecraft/server-ui",
+            "version": "2.1.0-beta"
+        },
+        {
+            "module_name": "@minecraft/server-gametest",
+            "version": "1.0.0-beta"
+        }
+    ],
+    "metadata": {
+        "authors": [ "TensiveYT" ],
+        "url": "https://www.youtube.com/channel/UCcLEP9PTEppqLgSlMPQfjDQ"
+    }
+}
