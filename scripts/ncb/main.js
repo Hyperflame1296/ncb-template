@@ -3,12 +3,12 @@ import * as ui from '@minecraft/server-ui';
 import * as gt from '@minecraft/server-gametest';
 
 /*
-    ncb template v0.1.0
+    ncb template v0.1.1
     template for making mods using ncb (new codebase)
 */
 
 let ncb = {
-    ver: 'ncb0.1.0',
+    ver: 'ncb0.1.1',
     methods: {
         check_op: function(player) { // wrap the operator check, to make things easier
             if (player.commandPermissionLevel >= 2) return true;
@@ -21,46 +21,6 @@ let ncb = {
         }
     },
     command_prefix: '!',
-    commands: [
-        {
-            name: 'help',
-            desc: 'Shows all of the available commands.',
-            requires_op: false,
-            func: function(a, player) {
-                let
-                    b = a[0]?.trim()?.toLowerCase(),
-                    c = a[1]?.trim()?.toLowerCase()
-                if (c) {
-                    let cmd = ncb.commands.find(cmd => `!${cmd.name}` === b);
-                } else {
-                    let msg = '\xa7eCommands\xa7f:'
-                    let msgop = '\xa7eOperator Commands\xa7f:'
-                    for (let command of ncb.commands.filter(cmd => !cmd.requires_op)) {
-                        msg += `\n    \xa7f!\xa7e${command.name} \xa7i- \xa7i\xa7o${command.desc}\xa7r`;
-                    }
-                    for (let command of ncb.commands.filter(cmd => cmd.requires_op)) {
-                        msgop += `\n    \xa7f!\xa7e${command.name} \xa7i- \xa7i\xa7o${command.desc}\xa7r`;
-                    }
-                    player.sendMessage(`${msg}${ncb.methods.check_op(player) ? '\n' + msgop : ''}`);
-                }
-            }
-        },
-        {
-            name: 'clear_chat',
-            desc: 'Clears the chat.',
-            requires_op: true,
-            func: function(a, player) {
-                let
-                    b = a[0]?.trim()?.toLowerCase(),
-                    c = a[1]?.trim()?.toLowerCase()
-
-                for (let i = 0; i < 100; i++) { // clear the chat by sending a bunch of empty messages
-                    s.world.sendMessage(' ');
-                }
-                s.world.sendMessage(`\xa7i\xa7o${player.name} has cleared the chat.`);
-            }
-        }
-    ],
     listeners: {
         before_events: {
             chatSend: function(e) {
@@ -70,7 +30,7 @@ let ncb = {
                         b = a[0]?.trim()?.toLowerCase(),
                         c = a[1]?.trim()?.toLowerCase();
 
-                    let cmd = ncb.commands.find(cmd => `!${cmd.name}` === b) // stupid way of doing this, but it works
+                    let cmd = ncb.commands.find(cmd => `${ncb.command_prefix}${cmd.name}` === b) // stupid way of doing this, but it works
                     if (cmd) {
                         if (cmd.requires_op && !ncb.methods.check_op(e.sender)) { // check if the command requires op and if the player is op
                             e.sender.sendMessage(`\xa7cYou don\'t have permission to use this command\xa7f!`);
@@ -100,9 +60,17 @@ let ncb = {
                 // runs when a player spawns
                 if (e.initialSpawn) {
                     let player = e.player;
-                        player.sendMessage(`\xa7ewelcome to the nbc template\xa7f! \xa7i- \xa7f(\xa7e${ncb.ver}\xa7f)`);
+                        player.sendMessage(`\xa7ewelcome to the ncb template\xa7f! \xa7i- \xa7f(\xa7e${ncb.ver}\xa7f)`);
                 }
             }
+        }
+    },
+    listeners_system: {
+        before_events: {
+            
+        },
+        after_events: {
+            
         }
     },
     on_tick: function() {
@@ -120,7 +88,6 @@ let ncb = {
         s.world.sendMessage(`script reloaded!`);
     }
 }
-
 s.world.afterEvents.worldLoad.subscribe(() => {
     for (let key of Object.keys(ncb.listeners.before_events)) {
         s.world.beforeEvents[key].subscribe(ncb.listeners.before_events[key]);
@@ -128,6 +95,71 @@ s.world.afterEvents.worldLoad.subscribe(() => {
     for (let key of Object.keys(ncb.listeners.after_events)) {
         s.world.afterEvents[key].subscribe(ncb.listeners.after_events[key]);
     }
+    for (let key of Object.keys(ncb.listeners_system.before_events)) {
+        s.system.beforeEvents[key].subscribe(ncb.listeners_system.before_events[key]);
+    }
+    for (let key of Object.keys(ncb.listeners_system.after_events)) {
+        s.system.afterEvents[key].subscribe(ncb.listeners_system.after_events[key]);
+    }
+
+    ncb.commands = [
+        {
+            name: 'help',
+            desc: 'Shows all of the available commands.',
+            requires_op: false,
+            syntax: [
+                `${ncb.command_prefix}\xa7ehelp \xa7i[\xa7fcommand\xa7i]`,
+            ],
+            send_usage: function(player) {
+                player.sendMessage('\xa7eUsage\xa7f: \n    ' + this.syntax.join('\n'));
+            },
+            func: function(a, player) {
+                try {
+                    let
+                        b = a[0]?.trim()?.toLowerCase(),
+                        c = a[1]?.trim()?.toLowerCase()
+                    if (c) {
+                        let cmd = ncb.commands.find(cmd => `${ncb.command_prefix}${cmd.name}` === c || `${cmd.name}` === c);
+                        player.sendMessage(`\xa7f${ncb.command_prefix}\xa7e${cmd.name}\xa7f - \xa7i\xa7o${cmd.desc}\xa7r`);
+                        cmd.send_usage(player); // send the usage of the command
+                    } else {
+                        let msg = '\xa7eCommands\xa7f:'
+                        let msgop = '\xa7eOperator Commands\xa7f:'
+                        for (let command of ncb.commands.filter(cmd => !cmd.requires_op)) {
+                            msg += `\n    \xa7f!\xa7e${command.name} \xa7i- \xa7i\xa7o${command.desc}\xa7r`;
+                        }
+                        for (let command of ncb.commands.filter(cmd => cmd.requires_op)) {
+                            msgop += `\n    \xa7f!\xa7e${command.name} \xa7i- \xa7i\xa7o${command.desc}\xa7r`;
+                        }
+                        player.sendMessage(`${msg}${ncb.methods.check_op(player) ? '\n' + msgop : ''}`);
+                    }
+                } catch (e) {
+                    player.sendMessage(`\xa7cERROR \xa7f- \xa7c${e.message}`); // send an error message to the player
+                }
+            }
+        },
+        {
+            name: 'clear_chat',
+            desc: 'Clears the chat.',
+            requires_op: true,
+            syntax: [
+                `${ncb.command_prefix}\xa7eclear_chat`,
+            ],
+            send_usage: function(player) {
+                player.sendMessage('\xa7eUsage\xa7f: \n    ' + this.syntax.join('\n'));
+            },
+            func: function(a, player) {
+                let
+                    b = a[0]?.trim()?.toLowerCase(),
+                    c = a[1]?.trim()?.toLowerCase()
+
+                for (let i = 0; i < 100; i++) { // clear the chat by sending a bunch of empty messages
+                    s.world.sendMessage(' ');
+                }
+                s.world.sendMessage(`\xa7i\xa7o${player.name} has cleared the chat.`);
+            }
+        }
+    ],
     ncb.on_load();
     ncb.on_tick();
 })
