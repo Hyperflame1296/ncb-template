@@ -101,7 +101,7 @@ s.world.afterEvents.worldLoad.subscribe(() => {
     for (let key of Object.keys(ncb.listeners_system.after_events)) {
         s.system.afterEvents[key].subscribe(ncb.listeners_system.after_events[key]);
     }
-    eiop.dimensions = {
+    ncb.dimensions = {
         overworld: s.world.getDimension('minecraft:overworld'),
         nether: s.world.getDimension('minecraft:nether'),
         the_end: s.world.getDimension('minecraft:the_end')
