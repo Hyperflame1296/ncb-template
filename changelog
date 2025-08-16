@@ -2,3 +2,7 @@ v0.1.2-alpha.rev0 changelog:
 # Changelog
 - removed NCB's custom command system, in favor of vanilla custom commands
 - changed the reload message
+v0.1.3-alpha.rev0 changelog:
+- removed the welcome message
+- changed the reload message again
+- added a rank system
